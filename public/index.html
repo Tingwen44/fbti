@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0D1117">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>FBTI — 你是哪种交易类型？</title>
+<meta name="description" content="25题·3分钟·16种交易人格，找到你真正的投资者身份">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     LANDING
+     ═══════════════════════════════════════ -->
+<section id="view-landing" class="view active">
+  <div class="landing-inner">
+    <div class="brand-tag">FBTI</div>
+
+    <h1 class="landing-title">
+      FBTI来了！<br>
+      你是哪种<span class="highlight">交易类型</span>？
+    </h1>
+
+    <p class="landing-sub1">"不要再叫我韭菜了，我有自己的名字"</p>
+    <p class="landing-sub2">25题 · 3分钟 · 16种交易人格</p>
+
+    <div class="float-tags">
+      <span class="float-tag gold">HODL</span>
+      <span class="float-tag">YOLO</span>
+      <span class="float-tag gold">MOON</span>
+      <span class="float-tag">FOMO</span>
+      <span class="float-tag gold">SNIF</span>
+      <span class="float-tag">ALGO</span>
+      <span class="float-tag gold">SURF</span>
+      <span class="float-tag">VIBE</span>
+      <span class="float-tag gold">DYOR</span>
+      <span class="float-tag">WAGM</span>
+      <span class="float-tag gold">EXIT</span>
+      <span class="float-tag">PUMP</span>
+      <span class="float-tag gold">MACD</span>
+      <span class="float-tag">PLAN</span>
+      <span class="float-tag gold">STOP</span>
+      <span class="float-tag">FEEL</span>
+    </div>
+
+    <button class="btn-primary" id="btn-start">开始测试</button>
+
+    <p class="trust-text" id="trust-count">已有 <strong>12,847</strong> 人找到了自己的名字</p>
+    <p class="disclaimer">本测试仅供娱乐参考，不构成任何投资建议</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     QUIZ
+     ═══════════════════════════════════════ -->
+<section id="view-quiz" class="view">
+  <div class="quiz-header">
+    <div class="progress-track">
+      <div id="progress-bar"></div>
+    </div>
+    <span id="q-num">1 / 25</span>
+  </div>
+
+  <div id="quiz-card">
+    <div class="special-badge" id="special-badge"></div>
+    <h2 id="question-text"></h2>
+    <div id="options-container"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     LOADING
+     ═══════════════════════════════════════ -->
+<section id="view-loading" class="view">
+  <div class="loading-ring"></div>
+  <p id="loading-text">分析你的交易基因中…</p>
+</section>
+
+<!-- ═══════════════════════════════════════
+     RESULT
+     ═══════════════════════════════════════ -->
+<section id="view-result" class="view">
+  <div class="result-inner">
+
+    <!-- Header card -->
+    <div id="res-header">
+      <img id="res-img" src="" alt="人格形象" style="display:none">
+      <div id="res-code">HODL</div>
+      <div id="res-name">长拿苦行僧</div>
+      <div id="res-en">The Diamond Holder</div>
+      <div id="res-quote">"时间是我最重的仓位"</div>
+      <div id="easter-badge"></div>
+    </div>
+
+    <!-- Description -->
+    <div class="res-section">
+      <div class="sec-title" id="res-accent">你是这样的人</div>
+      <p id="res-desc"></p>
+    </div>
+
+    <!-- Strengths -->
+    <div class="res-section">
+      <div class="sec-title">核心优势</div>
+      <ul id="res-strengths"></ul>
+    </div>
+
+    <!-- Weaknesses -->
+    <div class="res-section">
+      <div class="sec-title">致命弱点</div>
+      <ul id="res-weaknesses"></ul>
+    </div>
+
+    <!-- Said -->
+    <div class="res-section">
+      <div class="sec-title">你说过的话</div>
+      <div id="res-said"></div>
+    </div>
+
+    <!-- Dimensions -->
+    <div class="res-section">
+      <div class="sec-title">交易人格图谱</div>
+      <div id="dim-chart" class="dim-chart"></div>
+    </div>
+
+    <!-- Strategy & Archetype -->
+    <div class="res-section">
+      <div class="sec-title">适合你的策略</div>
+      <div class="info-row">
+        <span class="info-icon">📊</span>
+        <span class="info-text" id="res-strategy"></span>
+      </div>
+      <div class="info-row" style="margin-top:8px">
+        <span class="info-icon">🧬</span>
+        <span class="info-text" id="res-archetype"></span>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="res-actions">
+      <button class="btn-share-main" id="btn-share">生成分享卡片 ✦</button>
+      <button class="btn-retest" id="btn-retest">重新测试</button>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     SHARE CARD (off-screen for html2canvas)
+     ═══════════════════════════════════════ -->
+<div id="share-card">
+  <div class="sc-brand">FBTI · 交易人格测试</div>
+  <img id="sc-img" src="" alt="" style="display:none">
+  <div id="sc-code"></div>
+  <div class="sc-name-text" id="sc-name-text"></div>
+  <div id="sc-quote"></div>
+  <div class="sc-url">fbti.app</div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SHARE MODAL (fallback)
+     ═══════════════════════════════════════ -->
+<div id="share-modal">
+  <div class="modal-bg"></div>
+  <div class="modal-card">
+    <div class="modal-title">截图保存分享 📱</div>
+    <div class="modal-sub">长按截图，分享给朋友</div>
+    <div class="share-preview" id="share-preview-card">
+      <div style="font-size:11px;letter-spacing:3px;color:rgba(255,255,255,0.4)">FBTI · 交易人格测试</div>
+      <div id="sm-code"></div>
+      <div class="sm-name" id="sm-name"></div>
+      <div id="sm-quote"></div>
+    </div>
+    <button class="btn-retest" style="margin-top:8px" onclick="document.getElementById('share-modal').style.display='none'">关闭</button>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="/js/data/personalities.js"></script>
+<script src="/js/data/questions.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>
