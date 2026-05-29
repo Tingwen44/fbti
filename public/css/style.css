@@ -374,14 +374,27 @@ button { cursor: pointer; border: none; outline: none; -webkit-tap-highlight-col
   background: rgba(0,0,0,0.1);
 }
 
+/* Image crop wrapper — hides top ~25% of image (text area) */
+#res-img-wrap {
+  width: 220px;
+  height: 220px;
+  border-radius: 24px;
+  overflow: hidden;
+  position: relative;
+  margin: 0 auto 22px;
+  border: 2px solid rgba(255,255,255,0.18);
+  z-index: 1;
+  flex-shrink: 0;
+}
+
 #res-img {
-  width: 140px;
-  height: 140px;
-  border-radius: 50%;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 220px;
+  height: 292px; /* 132% — crops top 25% of source (text) */
   object-fit: cover;
-  border: 3px solid rgba(255,255,255,0.2);
-  margin-bottom: 18px;
-  position: relative; z-index: 1;
+  object-position: center;
 }
 
 #res-code {
@@ -555,7 +568,7 @@ button { cursor: pointer; border: none; outline: none; -webkit-tap-highlight-col
   display: none;
   position: fixed;
   top: -9999px;
-  left: -9999px;
+  left: 0;
   width: 750px;
   height: 750px;
   flex-direction: column;
@@ -564,11 +577,30 @@ button { cursor: pointer; border: none; outline: none; -webkit-tap-highlight-col
   text-align: center;
   padding: 60px 50px;
   gap: 16px;
-  z-index: -1;
 }
 
 .sc-brand { font-size: 14px; letter-spacing: 5px; color: rgba(255,255,255,0.4); }
-#sc-img { width: 200px; height: 200px; border-radius: 50%; object-fit: cover; border: 3px solid rgba(255,255,255,0.2); }
+
+/* Share card image crop */
+#sc-img-wrap {
+  width: 180px;
+  height: 180px;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  border: 2px solid rgba(255,255,255,0.2);
+  flex-shrink: 0;
+}
+#sc-img {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 180px;
+  height: 238px; /* 132% — crops top 25% text */
+  object-fit: cover;
+  object-position: center;
+}
+
 #sc-code { font-size: 18px; font-weight: 800; letter-spacing: 5px; }
 .sc-name-text { font-size: 42px; font-weight: 900; color: #fff; letter-spacing: -1px; }
 #sc-quote { font-size: 18px; color: rgba(255,255,255,0.7); font-style: italic; max-width: 500px; line-height: 1.6; }
@@ -628,7 +660,8 @@ button { cursor: pointer; border: none; outline: none; -webkit-tap-highlight-col
   #question-text { font-size: 22px; }
   .option-btn { padding: 18px 22px; min-height: 68px; }
   #res-name { font-size: 38px; }
-  #res-img { width: 160px; height: 160px; }
+  #res-img-wrap { width: 240px; height: 240px; }
+  #res-img { width: 240px; height: 320px; }
 }
 
 /* ═══════════════════════════════════════

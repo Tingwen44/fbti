@@ -215,13 +215,14 @@ function renderResult(p) {
   document.getElementById('res-quote').textContent  = `"${p.quote}"`;
   document.getElementById('res-desc').textContent   = p.description;
 
-  // Image
-  const imgEl = document.getElementById('res-img');
+  // Image (wrapped for crop)
+  const imgEl   = document.getElementById('res-img');
+  const imgWrap = document.getElementById('res-img-wrap');
   if (p.image) {
     imgEl.src = `/assets/images/${p.image}`;
-    imgEl.style.display = 'block';
+    imgWrap.style.display = 'block';
   } else {
-    imgEl.style.display = 'none';
+    imgWrap.style.display = 'none';
   }
 
   // Card color theme
@@ -312,39 +313,74 @@ function adjustColor(hex, amount) {
 
 // ─── Share Card ───────────────────────────────────────────
 document.getElementById('btn-share')?.addEventListener('click', async () => {
-  trackEvent('share_card_generate');
+  const btn = document.getElementById('btn-share');
   const p = State.result;
   if (!p) return;
 
-  // Build share card HTML
+  // Button loading state
+  btn.textContent = '生成中…';
+  btn.disabled = true;
+
+  trackEvent('share_card_generate');
+
+  // Build share card content
   const shareCard = document.getElementById('share-card');
   document.getElementById('sc-code').textContent  = p.code;
-  document.getElementById('sc-name').textContent  = p.name;
+  document.getElementById('sc-name').textContent  = p.name;    // id="sc-name" in HTML
   document.getElementById('sc-quote').textContent = `"${p.quote}"`;
   document.getElementById('sc-code').style.color  = p.accentColor;
   shareCard.style.background = `linear-gradient(155deg, ${p.color}, ${adjustColor(p.color, 30)})`;
 
-  const scImg = document.getElementById('sc-img');
-  if (p.image) { scImg.src = `/assets/images/${p.image}`; scImg.style.display='block'; }
-  else { scImg.style.display = 'none'; }
+  const scImg     = document.getElementById('sc-img');
+  const scImgWrap = document.getElementById('sc-img-wrap');
+  if (p.image) {
+    scImg.src = `/assets/images/${p.image}`;
+    scImgWrap.style.display = 'block';
+  } else {
+    scImgWrap.style.display = 'none';
+  }
 
   shareCard.style.display = 'flex';
+
+  const resetBtn = () => {
+    btn.textContent = '生成分享卡片 ✦';
+    btn.disabled = false;
+  };
 
   // Use html2canvas if available, else fallback
   if (typeof html2canvas !== 'undefined') {
     try {
-      const canvas = await html2canvas(shareCard, { scale: 2, useCORS: true, backgroundColor: null });
+      // Wait for image to load before capturing
+      if (p.image && scImg.src) {
+        await new Promise(res => {
+          if (scImg.complete) { res(); return; }
+          scImg.onload = res;
+          scImg.onerror = res;
+          setTimeout(res, 3000);
+        });
+      }
+      const canvas = await html2canvas(shareCard, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: null,
+        logging: false
+      });
       shareCard.style.display = 'none';
+      resetBtn();
       const link = document.createElement('a');
       link.download = `FBTI-${p.code}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
     } catch (e) {
+      console.error('html2canvas error:', e);
       shareCard.style.display = 'none';
-      alert('生成失败，请截图保存 🙏');
+      resetBtn();
+      showShareModal(p);
     }
   } else {
     shareCard.style.display = 'none';
+    resetBtn();
     showShareModal(p);
   }
 });
