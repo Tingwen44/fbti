@@ -13,7 +13,7 @@ const PERSONALITIES = {
     strategy: '指数定投 / 价值股长期持有 / 买入持有不折腾',
     archetype: '巴菲特的散户门徒（但账户里少了几个零）',
     dimensions: { S: 90, L: 95, G: 80, R: 92 },
-    image: null, color: '#1B3A6B', accentColor: '#F4C542'  // HODL image pending
+    image: 'HODL.png', color: '#1B3A6B', accentColor: '#F4C542'
   },
   DYOR: {
     code: 'DYOR', name: '股镇做题家', englishName: 'The Overresearcher', system: 'S',
