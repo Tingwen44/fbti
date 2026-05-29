@@ -182,6 +182,23 @@ button { cursor: pointer; border: none; outline: none; -webkit-tap-highlight-col
   margin: 0 auto;
 }
 
+.btn-prev {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 20px;
+  line-height: 1;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--trans);
+}
+.btn-prev:active { background: var(--bg3); color: var(--text); }
+
 .progress-track {
   flex: 1;
   height: 3px;
@@ -218,6 +235,10 @@ button { cursor: pointer; border: none; outline: none; -webkit-tap-highlight-col
 
 #quiz-card.slide-out {
   transform: translateX(-24px);
+  opacity: 0;
+}
+#quiz-card.slide-back {
+  transform: translateX(24px);
   opacity: 0;
 }
 
@@ -374,27 +395,25 @@ button { cursor: pointer; border: none; outline: none; -webkit-tap-highlight-col
   background: rgba(0,0,0,0.1);
 }
 
-/* Image crop wrapper — hides top ~25% of image (text area) */
+/* Result image wrapper — full square, shows original image with its text */
 #res-img-wrap {
-  width: 220px;
-  height: 220px;
-  border-radius: 24px;
+  width: 240px;
+  height: 240px;
+  border-radius: 20px;
   overflow: hidden;
   position: relative;
   margin: 0 auto 22px;
-  border: 2px solid rgba(255,255,255,0.18);
+  border: 2px solid rgba(255,255,255,0.15);
   z-index: 1;
   flex-shrink: 0;
 }
 
 #res-img {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 220px;
-  height: 292px; /* 132% — crops top 25% of source (text) */
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  object-position: center;
+  object-position: center center;
+  display: block;
 }
 
 #res-code {
@@ -564,47 +583,64 @@ button { cursor: pointer; border: none; outline: none; -webkit-tap-highlight-col
 /* ═══════════════════════════════════════
    SHARE CARD (off-screen render)
    ═══════════════════════════════════════ */
+/* ── Share Card: white background, mobile portrait size ── */
 #share-card {
   display: none;
   position: fixed;
   top: -9999px;
   left: 0;
-  width: 750px;
+  width: 375px;
   height: 750px;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 60px 50px;
-  gap: 16px;
+  justify-content: space-between;
+  background: #FFFFFF;
+  padding: 44px 32px 40px;
 }
 
-.sc-brand { font-size: 14px; letter-spacing: 5px; color: rgba(255,255,255,0.4); }
+.sc-brand {
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: #BBBBBB;
+  text-transform: uppercase;
+  align-self: flex-start;
+}
 
-/* Share card image crop */
+/* Share card image — full original square, no crop */
 #sc-img-wrap {
-  width: 180px;
-  height: 180px;
+  width: 311px;
+  height: 311px;
   border-radius: 20px;
   overflow: hidden;
-  position: relative;
-  border: 2px solid rgba(255,255,255,0.2);
   flex-shrink: 0;
 }
 #sc-img {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 180px;
-  height: 238px; /* 132% — crops top 25% text */
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  object-position: center;
+  object-position: center center;
+  display: block;
 }
 
-#sc-code { font-size: 18px; font-weight: 800; letter-spacing: 5px; }
-.sc-name-text { font-size: 42px; font-weight: 900; color: #fff; letter-spacing: -1px; }
-#sc-quote { font-size: 18px; color: rgba(255,255,255,0.7); font-style: italic; max-width: 500px; line-height: 1.6; }
-.sc-url { font-size: 14px; color: rgba(255,255,255,0.3); letter-spacing: 2px; margin-top: 8px; }
+/* No-image fallback */
+#sc-noimg-area {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+#sc-code { font-size: 20px; font-weight: 800; letter-spacing: 6px; }
+.sc-name-text { font-size: 40px; font-weight: 900; color: #111111; letter-spacing: -1px; }
+
+#sc-quote {
+  font-size: 17px;
+  color: #333333;
+  font-style: italic;
+  text-align: center;
+  line-height: 1.7;
+  max-width: 290px;
+}
+.sc-url { font-size: 11px; color: #CCCCCC; letter-spacing: 3px; }
 
 /* ═══════════════════════════════════════
    SHARE MODAL (fallback)
@@ -660,8 +696,8 @@ button { cursor: pointer; border: none; outline: none; -webkit-tap-highlight-col
   #question-text { font-size: 22px; }
   .option-btn { padding: 18px 22px; min-height: 68px; }
   #res-name { font-size: 38px; }
-  #res-img-wrap { width: 240px; height: 240px; }
-  #res-img { width: 240px; height: 320px; }
+  #res-img-wrap { width: 260px; height: 260px; }
+  #res-img { width: 100%; height: 100%; }
 }
 
 /* ═══════════════════════════════════════

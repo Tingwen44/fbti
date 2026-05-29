@@ -103,6 +103,10 @@ function renderQuestion() {
   document.getElementById('progress-bar').style.width = progress + '%';
   document.getElementById('q-num').textContent = `${State.currentQ + 1} / ${total}`;
 
+  // Show / hide back button
+  const prevBtn = document.getElementById('btn-prev');
+  if (prevBtn) prevBtn.style.display = State.currentQ > 0 ? 'flex' : 'none';
+
   // Special badge for Q25
   const specialBadge = document.getElementById('special-badge');
   if (q.isSpecial) {
@@ -141,12 +145,19 @@ function selectAnswer(opt, btn) {
   Object.keys(s).forEach(k => { State.scores[k] = (State.scores[k] || 0) + s[k]; });
 
   // Check easter egg
-  if (opt.special === 'easter_egg') {
+  const isEgg = opt.special === 'easter_egg';
+  if (isEgg) {
     State.isEasterEgg = true;
     trackEvent('easter_egg_trigger');
   }
 
-  State.answers.push({ q: State.currentQ + 1, choice: opt.label });
+  // Store answer with score delta + easter egg flag (needed for going back)
+  State.answers.push({
+    q: State.currentQ + 1,
+    choice: opt.label,
+    score: { ...(opt.score || {}) },
+    wasEasterEgg: isEgg
+  });
 
   // Next question after brief delay
   setTimeout(() => {
@@ -164,6 +175,32 @@ function selectAnswer(opt, btn) {
     }
   }, 320);
 }
+
+// ─── Back button ─────────────────────────────────────────
+document.getElementById('btn-prev')?.addEventListener('click', () => {
+  if (State.currentQ <= 0) return;
+
+  // Undo last answer: subtract its score contribution
+  const last = State.answers.pop();
+  if (last?.score) {
+    Object.keys(last.score).forEach(k => {
+      State.scores[k] = Math.max(0, (State.scores[k] || 0) - (last.score[k] || 0));
+    });
+  }
+
+  // Recalculate easter egg state from remaining answers
+  State.isEasterEgg = State.answers.some(a => a.wasEasterEgg);
+
+  State.currentQ--;
+
+  // Slide-back animation
+  const container = document.getElementById('quiz-card');
+  container.classList.add('slide-back');
+  setTimeout(() => {
+    container.classList.remove('slide-back');
+    renderQuestion();
+  }, 180);
+});
 
 // ─── Loading ─────────────────────────────────────────────
 function finishQuiz() {
@@ -215,15 +252,19 @@ function renderResult(p) {
   document.getElementById('res-quote').textContent  = `"${p.quote}"`;
   document.getElementById('res-desc').textContent   = p.description;
 
-  // Image (wrapped for crop)
+  // Image — show full original image; hide duplicate name/en when image present
   const imgEl   = document.getElementById('res-img');
   const imgWrap = document.getElementById('res-img-wrap');
-  if (p.image) {
+  const hasImg  = !!p.image;
+  if (hasImg) {
     imgEl.src = `/assets/images/${p.image}`;
     imgWrap.style.display = 'block';
   } else {
     imgWrap.style.display = 'none';
   }
+  // Image already contains name + code — hide redundant text elements
+  document.getElementById('res-name').style.display = hasImg ? 'none' : 'block';
+  document.getElementById('res-en').style.display   = hasImg ? 'none' : 'block';
 
   // Card color theme
   const card = document.getElementById('res-header');
@@ -323,21 +364,26 @@ document.getElementById('btn-share')?.addEventListener('click', async () => {
 
   trackEvent('share_card_generate');
 
-  // Build share card content
-  const shareCard = document.getElementById('share-card');
-  document.getElementById('sc-code').textContent  = p.code;
-  document.getElementById('sc-name').textContent  = p.name;    // id="sc-name" in HTML
-  document.getElementById('sc-quote').textContent = `"${p.quote}"`;
-  document.getElementById('sc-code').style.color  = p.accentColor;
-  shareCard.style.background = `linear-gradient(155deg, ${p.color}, ${adjustColor(p.color, 30)})`;
+  // Build share card content (white background, original image with its text)
+  const shareCard  = document.getElementById('share-card');
+  const scImg      = document.getElementById('sc-img');
+  const scImgWrap  = document.getElementById('sc-img-wrap');
+  const scNoImg    = document.getElementById('sc-noimg-area');
 
-  const scImg     = document.getElementById('sc-img');
-  const scImgWrap = document.getElementById('sc-img-wrap');
+  document.getElementById('sc-quote').textContent = `"${p.quote}"`;
+
   if (p.image) {
+    // Has image: show it, hide text fallback
     scImg.src = `/assets/images/${p.image}`;
     scImgWrap.style.display = 'block';
+    scNoImg.style.display   = 'none';
   } else {
+    // No image (e.g. HODL): show code + name on white card
     scImgWrap.style.display = 'none';
+    scNoImg.style.display   = 'flex';
+    document.getElementById('sc-code').textContent  = p.code;
+    document.getElementById('sc-code').style.color  = p.accentColor;
+    document.getElementById('sc-name').textContent  = p.name;
   }
 
   shareCard.style.display = 'flex';

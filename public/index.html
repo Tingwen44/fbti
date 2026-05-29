@@ -48,7 +48,6 @@
 
     <button class="btn-primary" id="btn-start">开始测试</button>
 
-    <p class="trust-text" id="trust-count">已有 <strong>12,847</strong> 人找到了自己的名字</p>
     <p class="disclaimer">本测试仅供娱乐参考，不构成任何投资建议</p>
   </div>
 </section>
@@ -58,6 +57,7 @@
      ═══════════════════════════════════════ -->
 <section id="view-quiz" class="view">
   <div class="quiz-header">
+    <button id="btn-prev" class="btn-prev" style="display:none">‹</button>
     <div class="progress-track">
       <div id="progress-bar"></div>
     </div>
@@ -153,8 +153,10 @@
 <div id="share-card">
   <div class="sc-brand">FBTI · 交易人格测试</div>
   <div id="sc-img-wrap" style="display:none"><img id="sc-img" src="" alt=""></div>
-  <div id="sc-code"></div>
-  <div class="sc-name-text" id="sc-name"></div>
+  <div id="sc-noimg-area">
+    <div id="sc-code"></div>
+    <div class="sc-name-text" id="sc-name"></div>
+  </div>
   <div id="sc-quote"></div>
   <div class="sc-url">fbti.app</div>
 </div>
