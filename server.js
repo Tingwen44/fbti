@@ -17,6 +17,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api', eventsRouter);
 app.use('/api/stats', statsRouter);
 
+// Admin dashboard
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
 // SPA fallback
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));

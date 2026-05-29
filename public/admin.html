@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FBTI · 数据后台</title>
+<style>
+  :root {
+    --bg:     #0D1117;
+    --bg2:    #161B22;
+    --bg3:    #21262D;
+    --border: rgba(255,255,255,0.08);
+    --text:   #F0F6FC;
+    --dim:    #8B949E;
+    --mute:   #484F58;
+    --gold:   #F4C542;
+    --green:  #3FB950;
+    --blue:   #58A6FF;
+    --purple: #BC8CFF;
+    --r: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, 'PingFang SC', 'SF Pro Text', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Header ── */
+  .header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 10;
+  }
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .logo { font-size: 11px; letter-spacing: 4px; color: var(--gold); font-weight: 700; }
+  .header-title { font-size: 16px; font-weight: 700; color: var(--text); }
+  .refresh-btn {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    color: var(--dim);
+    font-size: 12px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+  }
+  .refresh-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .refresh-btn.spinning .icon { animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .last-update { font-size: 11px; color: var(--mute); margin-top: 2px; }
+
+  /* ── Layout ── */
+  .page { max-width: 960px; margin: 0 auto; padding: 24px 20px 48px; }
+
+  /* ── Stat cards ── */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  @media (max-width: 600px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  .stat-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 18px 16px;
+  }
+  .stat-label {
+    font-size: 11px;
+    color: var(--mute);
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+  .stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1;
+  }
+  .stat-card.gold  .stat-value { color: var(--gold); }
+  .stat-card.green .stat-value { color: var(--green); }
+  .stat-card.blue  .stat-value { color: var(--blue); }
+  .stat-card.purple .stat-value { color: var(--purple); }
+
+  /* ── Section ── */
+  .section { margin-bottom: 24px; }
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--mute);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── Two-column layout ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 16px;
+  }
+  .panel-title {
+    font-size: 12px;
+    color: var(--dim);
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+
+  /* ── Device bars ── */
+  .device-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .device-label { width: 52px; font-size: 12px; color: var(--dim); flex-shrink: 0; }
+  .device-track {
+    flex: 1;
+    height: 8px;
+    background: var(--bg3);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .device-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease; }
+  .device-pct { font-size: 12px; color: var(--dim); width: 36px; text-align: right; flex-shrink: 0; }
+  .device-count { font-size: 12px; color: var(--mute); width: 28px; text-align: right; flex-shrink: 0; }
+
+  /* ── Personality list ── */
+  .persona-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .persona-row:last-child { border-bottom: none; }
+  .persona-rank {
+    font-size: 11px;
+    color: var(--mute);
+    width: 16px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .persona-code {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    width: 44px;
+    flex-shrink: 0;
+  }
+  .persona-name { font-size: 12px; color: var(--dim); width: 80px; flex-shrink: 0; overflow: hidden; white-space: nowrap; }
+  .persona-bar-wrap { flex: 1; height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+  .persona-bar { height: 100%; border-radius: 3px; background: var(--gold); opacity: 0.7; transition: width 0.8s ease; }
+  .persona-pct { font-size: 12px; color: var(--dim); width: 36px; text-align: right; flex-shrink: 0; }
+  .persona-count { font-size: 11px; color: var(--mute); width: 28px; text-align: right; flex-shrink: 0; }
+
+  /* ── Funnel ── */
+  .funnel { display: flex; flex-direction: column; gap: 8px; }
+  .funnel-step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .funnel-label { font-size: 12px; color: var(--dim); width: 72px; flex-shrink: 0; }
+  .funnel-bar-wrap { flex: 1; height: 22px; background: var(--bg3); border-radius: 6px; overflow: hidden; position: relative; }
+  .funnel-bar { height: 100%; border-radius: 6px; display: flex; align-items: center; padding-left: 10px; font-size: 11px; font-weight: 700; color: rgba(0,0,0,0.7); transition: width 0.8s ease; white-space: nowrap; overflow: hidden; }
+  .funnel-num { font-size: 12px; color: var(--dim); width: 36px; text-align: right; flex-shrink: 0; }
+
+  /* ── Loading ── */
+  .skeleton {
+    background: linear-gradient(90deg, var(--bg2) 25%, var(--bg3) 50%, var(--bg2) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 6px;
+  }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+
+  .empty { color: var(--mute); font-size: 13px; text-align: center; padding: 24px; }
+  .error-msg { color: #f85149; font-size: 13px; padding: 16px; background: rgba(248,81,73,0.1); border-radius: var(--r); border: 1px solid rgba(248,81,73,0.2); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <span class="logo">FBTI</span>
+    <div>
+      <div class="header-title">数据后台</div>
+      <div class="last-update" id="last-update">加载中…</div>
+    </div>
+  </div>
+  <button class="refresh-btn" id="refresh-btn" onclick="loadAll()">
+    <span class="icon" style="display:inline-block">↻</span> 刷新
+  </button>
+</div>
+
+<div class="page">
+
+  <!-- ── Key metrics ── -->
+  <div class="section">
+    <div class="section-title">核心数据</div>
+    <div class="stat-grid" id="stat-grid">
+      <div class="stat-card skeleton" style="height:82px"></div>
+      <div class="stat-card skeleton" style="height:82px"></div>
+      <div class="stat-card skeleton" style="height:82px"></div>
+      <div class="stat-card skeleton" style="height:82px"></div>
+      <div class="stat-card skeleton" style="height:82px"></div>
+      <div class="stat-card skeleton" style="height:82px"></div>
+    </div>
+  </div>
+
+  <!-- ── Funnel + Device ── -->
+  <div class="section">
+    <div class="section-title">转化漏斗 · 设备分布</div>
+    <div class="two-col">
+      <div class="panel">
+        <div class="panel-title">测试转化漏斗</div>
+        <div class="funnel" id="funnel-chart">
+          <div class="skeleton" style="height:22px;border-radius:6px"></div>
+          <div class="skeleton" style="height:22px;border-radius:6px;width:75%"></div>
+          <div class="skeleton" style="height:22px;border-radius:6px;width:55%"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">设备分布</div>
+        <div id="device-chart">
+          <div class="skeleton" style="height:16px;border-radius:4px;margin-bottom:10px"></div>
+          <div class="skeleton" style="height:16px;border-radius:4px;width:60%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Personality distribution ── -->
+  <div class="section">
+    <div class="section-title">人格分布（共 <span id="total-label">—</span> 份）</div>
+    <div class="panel" style="padding:12px 16px">
+      <div id="persona-list"><div class="skeleton" style="height:200px;border-radius:8px"></div></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const ACCENT = {
+  HODL:'#F4C542', DYOR:'#7EC8E3', MACD:'#00B4D8', ALGO:'#00D2FF',
+  PLAN:'#A8DADC', FOMO:'#C77DFF', STOP:'#80B918', PUMP:'#FF6B35',
+  SNIF:'#52B788', MOON:'#B5E48C', EXIT:'#48CAE4', SURF:'#7B2FBE',
+  FEEL:'#E9C46A', WAGM:'#F72585', VIBE:'#9B5DE5', YOLO:'#FF4D6D',
+  INFO:'#8AC926'
+};
+
+async function loadAll() {
+  const btn = document.getElementById('refresh-btn');
+  btn.classList.add('spinning');
+  try {
+    const [ov, dist] = await Promise.all([
+      fetch('/api/stats/overview').then(r => r.json()),
+      fetch('/api/stats/personalities').then(r => r.json())
+    ]);
+    renderStats(ov);
+    renderFunnel(ov);
+    renderDevices(ov.device_breakdown || {});
+    renderPersonas(dist);
+    document.getElementById('last-update').textContent =
+      '最后更新：' + new Date().toLocaleTimeString('zh-CN');
+  } catch(e) {
+    document.getElementById('stat-grid').innerHTML =
+      `<div class="error-msg" style="grid-column:1/-1">接口请求失败：${e.message}</div>`;
+  } finally {
+    btn.classList.remove('spinning');
+  }
+}
+
+function fmt(sec) {
+  if (!sec) return '—';
+  const m = Math.floor(sec / 60), s = sec % 60;
+  return m > 0 ? `${m}分${s}秒` : `${s}秒`;
+}
+
+function renderStats(d) {
+  document.getElementById('stat-grid').innerHTML = `
+    <div class="stat-card gold">
+      <div class="stat-label">总访问</div>
+      <div class="stat-value">${d.total_visits ?? 0}</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-label">开始测试</div>
+      <div class="stat-value">${d.total_starts ?? 0}</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-label">完成测试</div>
+      <div class="stat-value">${d.total_completes ?? 0}</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-label">完成率</div>
+      <div class="stat-value">${d.completion_rate ?? '0%'}</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-label">平均耗时</div>
+      <div class="stat-value" style="font-size:20px">${fmt(d.avg_time_spent)}</div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-label">彩蛋触发</div>
+      <div class="stat-value">${d.easter_egg_triggers ?? 0}</div>
+    </div>
+  `;
+}
+
+function renderFunnel(d) {
+  const visits   = d.total_visits   || 0;
+  const starts   = d.total_starts   || 0;
+  const completes= d.total_completes|| 0;
+  const max = visits || 1;
+  const steps = [
+    { label:'访问落地页', val: visits,    pct: 100,                         color:'#58A6FF' },
+    { label:'开始测试',   val: starts,    pct: Math.round(starts/max*100),  color:'#F4C542' },
+    { label:'完成测试',   val: completes, pct: Math.round(completes/max*100),color:'#3FB950' },
+  ];
+  document.getElementById('funnel-chart').innerHTML = steps.map(s => `
+    <div class="funnel-step">
+      <span class="funnel-label">${s.label}</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar" style="width:${s.pct}%;background:${s.color}">
+          ${s.pct > 20 ? s.pct + '%' : ''}
+        </div>
+      </div>
+      <span class="funnel-num">${s.val}</span>
+    </div>
+  `).join('');
+}
+
+function renderDevices(dev) {
+  const entries = Object.entries(dev);
+  const total = entries.reduce((s,[,v]) => s+v, 0) || 1;
+  const COLORS = { mobile:'#F4C542', desktop:'#58A6FF', tablet:'#3FB950' };
+  const LABELS = { mobile:'手机', desktop:'电脑', tablet:'平板', unknown:'未知' };
+
+  if (!entries.length) {
+    document.getElementById('device-chart').innerHTML = '<div class="empty">暂无数据</div>';
+    return;
+  }
+  document.getElementById('device-chart').innerHTML = entries
+    .sort(([,a],[,b]) => b-a)
+    .map(([k, v]) => `
+      <div class="device-row">
+        <span class="device-label">${LABELS[k]||k}</span>
+        <div class="device-track">
+          <div class="device-fill" style="width:${Math.round(v/total*100)}%;background:${COLORS[k]||'#8B949E'}"></div>
+        </div>
+        <span class="device-pct">${Math.round(v/total*100)}%</span>
+        <span class="device-count">${v}</span>
+      </div>
+    `).join('');
+}
+
+function renderPersonas(data) {
+  document.getElementById('total-label').textContent = data.total ?? 0;
+  const list = data.distribution || [];
+  if (!list.length) {
+    document.getElementById('persona-list').innerHTML = '<div class="empty">暂无测试结果</div>';
+    return;
+  }
+  const maxCount = list[0].count || 1;
+  document.getElementById('persona-list').innerHTML = list.map((p, i) => `
+    <div class="persona-row">
+      <span class="persona-rank">${i+1}</span>
+      <span class="persona-code" style="color:${ACCENT[p.personality]||'#F4C542'}">${p.personality}</span>
+      <span class="persona-name">${p.personality_name}</span>
+      <div class="persona-bar-wrap">
+        <div class="persona-bar" style="width:${Math.round(p.count/maxCount*100)}%;background:${ACCENT[p.personality]||'#F4C542'}"></div>
+      </div>
+      <span class="persona-pct">${p.pct}</span>
+      <span class="persona-count">${p.count}</span>
+    </div>
+  `).join('');
+}
+
+// Init
+loadAll();
+// Auto-refresh every 60s
+setInterval(loadAll, 60000);
+</script>
+</body>
+</html>
