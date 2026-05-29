@@ -208,7 +208,7 @@ const EASTER_EGG = {
   strategy: '先关掉五个股票群，再谈投资',
   archetype: '永远在高点接盘的人',
   dimensions: { I: 60, T: 85, A: 80, E: 95 },
-  image: null, color: '#1A1A1A', accentColor: '#8AC926',
+  image: 'sleNWBbEqSz1qwIR0RG2X.png', color: '#1A1A1A', accentColor: '#8AC926',
   isEasterEgg: true,
   easterEggMsg: '🌱 恭喜解锁隐藏人格！'
 };
